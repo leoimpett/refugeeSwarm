@@ -1,4 +1,4 @@
-function [ populationMap ] = GeneratePopulationMatrix ( mapImageName )
+function [ populationMap, populationMapY, populationMapC ] = GeneratePopulationMatrix ( mapImageName )
 
     MAP_CROP_START = 264;
     % RED = 9;        % Administrative building color code
@@ -23,12 +23,14 @@ function [ populationMap ] = GeneratePopulationMatrix ( mapImageName )
     Y = inputMap == YELLOW;
 
     populationMapC = ConvertToDensity(C, PEOPLE_PER_SHELTER);
+    populationMapC = RescaleMap(populationMapC, ORIGIN_METRES_PER_PIXEL / TARGET_METRES_PER_PIXEL);
+    populationMapC = CentreMap(populationMapC, TARGET_DIMENSION_X, TARGET_DIMENSION_Y);
+    
     populationMapY = ConvertToDensity(Y, PEOPLE_PER_SHELTER);
+    populationMapY = RescaleMap(populationMapY, ORIGIN_METRES_PER_PIXEL / TARGET_METRES_PER_PIXEL);
+    populationMapY = CentreMap(populationMapY, TARGET_DIMENSION_X, TARGET_DIMENSION_Y);
     
     populationMap = populationMapC + populationMapY;
-    
-    populationMap = RescaleMap(populationMap, ORIGIN_METRES_PER_PIXEL / TARGET_METRES_PER_PIXEL);
-    populationMap = CentreMap(populationMap, TARGET_DIMENSION_X, TARGET_DIMENSION_Y);
 
 end
 
