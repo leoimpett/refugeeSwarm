@@ -16,8 +16,10 @@ resources = numAgents*ones(numAgents,1);
 % starting positions
 agents = randi(xmax,numAgents,2);
    
-tmax = 10000;
-agentSpeed = 1;
+tmax = 1000;
+agentSpeed = 3;
+
+NumStructures = zeros(tmax,1);
 
 ScaleConstant = 1/4;
 
@@ -56,9 +58,9 @@ for t = 1 : tmax
 
                     if (min(waterDist) < 20*ScaleConstant) && ((fiftyPop - (sum(showerDist<50*ScaleConstant)*40))>0)
         %                 near water: suitable for showers. 
-        
-%         But we also want to find out if there are other showers covering
-%         the same area...
+
+        %         But we also want to find out if there are other showers covering
+        %         the same area...
 
                         showers = [showers; agents(a,:)];                
                     end
@@ -83,6 +85,7 @@ for t = 1 : tmax
         
     
 
+NumStructures(t) = size(showers,1) + size(waterSources,1) + size(lavs,1);
 
 end
 
@@ -109,6 +112,8 @@ pp(2) = subplot(2,2,2);
 imagesc(square);
 linkaxes(pp);
 
+figure();
+plot(NumStructures);
 
 
     
