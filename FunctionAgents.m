@@ -18,7 +18,11 @@ agents = randi(xmax,numAgents,2);
 tmax = 2000;
 agentSpeed = 3;
 
-NumStructures = zeros(tmax,1);
+showeredData = zeros(tmax,1);
+wateredData = zeros(tmax,1);
+latrinedData = zeros(tmax,1);
+fullySatisfiedData = zeros(tmax,1);
+numStructuresData = zeros(tmax,1);
 
 ScaleConstant = 1/4;
 
@@ -35,6 +39,13 @@ for t = 1 : tmax
     elseif (t == floor(2*tmax/3))
         currentMap = populationMap;
     end
+    
+    sumShowered = 0;
+    sumWatered = 0;
+    sumLatrined = 0;
+    sumFullySatisfied = 0;
+    sumFiftyPop = 0;
+    sumHundredPop = 0;
     
     % Cycle through the agents
     for a = 1 : numAgents
@@ -59,53 +70,92 @@ for t = 1 : tmax
         ydist = lavs(:,2) - agents(a,2);
         lavDist = sqrt(xdist.^2 + ydist.^2);
         
-        if (min(waterDist) < 20*ScaleConstant) && (fiftyPop - (40*sum(showerDist < 50*ScaleConstant)) > 0)
+        localPopShowered = 40*sum(showerDist < 50*ScaleConstant);
+        sumShowered = sumShowered + min([fiftyPop localPopShowered]);
+        if (min(waterDist) < 20*ScaleConstant) && (fiftyPop - localPopShowered > 0)
             % near water: suitable for showers.
             % But we also want to find out if there are other showers covering
             % the same area...
             showers = [showers; agents(a,:)];
         end
         
-        if (min(waterDist) > 100*ScaleConstant) &&  (hundredPop - (100*sum(waterDist < 100*ScaleConstant)) > 0)
+        localPopWatered = 100*sum(waterDist < 100*ScaleConstant);
+        sumWatered = sumWatered + min([hundredPop localPopWatered]);
+        if (min(waterDist) > 100*ScaleConstant) &&  (hundredPop - localPopWatered > 0)
             % very far from water: make water source
             waterSources = [waterSources; agents(a,:)];
         end
         
-        if (min(waterDist) > 30*ScaleConstant) && (fiftyPop - (20*sum(lavDist < 50*ScaleConstant)) > 0)
+        localPopLatrined = 20*sum(lavDist < 50*ScaleConstant);
+        sumLatrined = sumLatrined + min([fiftyPop localPopLatrined]);
+        if (min(waterDist) > 30*ScaleConstant) && (fiftyPop - localPopLatrined > 0)
             % quite far from water: suitable for latrines
             lavs = [lavs; agents(a,:)];
         end
         
+        if fiftyPop > 0
+            sumFullySatisfied = sumFullySatisfied + fiftyPop * min([1 localPopShowered/fiftyPop]) ...
+                * min([1 localPopWatered/hundredPop]) * min([1 localPopLatrined/fiftyPop]);
+        end
+        
+        sumFiftyPop = sumFiftyPop + fiftyPop;
+        sumHundredPop = sumHundredPop + hundredPop;
+        
     end
-    NumStructures(t) = size(showers,1) + size(waterSources,1) + size(lavs,1);
+    
+    showeredData(t) = sumShowered/sumFiftyPop;
+    wateredData(t) = sumWatered/sumHundredPop;
+    latrinedData(t) = sumLatrined/sumFiftyPop;
+    fullySatisfiedData(t) = sumFullySatisfied/sumFiftyPop;
+    numStructuresData(t) = size(showers,1) + size(waterSources,1) + size(lavs,1);
     
 end
 
 
-
 square  = zeros(xmax,ymax);
-for a = 1 : numAgents
+% for a = 1 : numAgents
 %     square(agents(a,1),agents(a,2)) = 1;
-end
-for w = 1 : size(waterSources,1)
-    square(waterSources(w,1),waterSources(w,2)) = 2;
-end
+% end
 for w = 1 : size(lavs,1)
     square(lavs(w,1),lavs(w,2)) = 3;
 end
 for w = 1 : size(showers,1)
     square(showers(w,1),showers(w,2)) = 4;
 end
+for w = 1 : size(waterSources,1)
+    square(waterSources(w,1),waterSources(w,2)) = 2;
+end
 
-    
-pp(1) = subplot(2,2,1);
+
+% pp(1) = subplot(2,2,1);
+figure();
 imagesc(currentMap);
-pp(2) = subplot(2,2,2);
+axis equal tight;
+% pp(2) = subplot(2,2,2);
+figure();
 imagesc(square);
-linkaxes(pp);
+axis equal tight;
+% linkaxes(pp);
 
 figure();
-plot(NumStructures);
+plot(numStructuresData);
+title('Number of structures over time');
+
+figure();
+plot(showeredData);
+title('Probability of access to shower over time');
+
+figure();
+plot(wateredData);
+title('Probability of access to water over time');
+
+figure();
+plot(latrinedData);
+title('Probability of access to latrine over time');
+
+figure();
+plot(fullySatisfiedData);
+title('Probability of full access to facilities over time');
 
 
     
