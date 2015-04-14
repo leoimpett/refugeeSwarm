@@ -1,4 +1,4 @@
-function [ populationMap, populationMapY, populationMapC ] = GeneratePopulationMatrix ( mapImageName )
+function [ populationMap, populationMap0, populationMap1 ] = GeneratePopulationMatrix ( mapImageName )
 
     MAP_CROP_START = 264;
     % RED = 9;        % Administrative building color code
@@ -6,7 +6,7 @@ function [ populationMap, populationMapY, populationMapC ] = GeneratePopulationM
     CYAN = 14;      % Improvised shelter color code
     ORIGIN_METRES_PER_PIXEL = 300/126;   % Metres per pixel on original map
     TARGET_METRES_PER_PIXEL = 4;         % Metres per pixel on population density map
-    PEOPLE_PER_SHELTER = 5;
+    PEOPLE_PER_SHELTER = 7;
     TARGET_DIMENSION_X = 600;
     TARGET_DIMENSION_Y = 600;
     
@@ -22,15 +22,27 @@ function [ populationMap, populationMapY, populationMapC ] = GeneratePopulationM
     C = inputMap == CYAN;
     Y = inputMap == YELLOW;
 
+    % Rescaling
     populationMapC = ConvertToDensity(C, PEOPLE_PER_SHELTER);
     populationMapC = RescaleMap(populationMapC, ORIGIN_METRES_PER_PIXEL / TARGET_METRES_PER_PIXEL);
     populationMapC = CentreMap(populationMapC, TARGET_DIMENSION_X, TARGET_DIMENSION_Y);
-    
     populationMapY = ConvertToDensity(Y, PEOPLE_PER_SHELTER);
     populationMapY = RescaleMap(populationMapY, ORIGIN_METRES_PER_PIXEL / TARGET_METRES_PER_PIXEL);
     populationMapY = CentreMap(populationMapY, TARGET_DIMENSION_X, TARGET_DIMENSION_Y);
     
+    % Final Map
     populationMap = populationMapC + populationMapY;
+    
+    % Erasing sections to create intermediate population maps
+    populationMap1 = populationMap;
+    populationMap1(438:600,1:369) = 0;
+    populationMap1(369:600,1:438) = 0;
+    populationMap1(345:600,1:402) = 0;
+    populationMap1(315:600,1:220) = 0;
+    
+    populationMap0 = populationMap1;
+    populationMap0(261:600,359:600) = 0;
+    populationMap0(1:268,415:600) = 0;
 
 end
 
