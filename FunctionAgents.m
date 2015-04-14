@@ -81,7 +81,7 @@ for t = 1 : tmax
         
         localPopWatered = 100*sum(waterDist < 100*ScaleConstant);
         sumWatered = sumWatered + min([hundredPop localPopWatered]);
-        if (min(waterDist) > 100*ScaleConstant) &&  (hundredPop - localPopWatered > 0)
+        if (hundredPop - localPopWatered > 0)
             % very far from water: make water source
             waterSources = [waterSources; agents(a,:)];
         end
