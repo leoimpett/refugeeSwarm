@@ -15,8 +15,8 @@ resources = numAgents*ones(numAgents,1);
 % starting positions
 agents = randi(xmax,numAgents,2);
    
-tmax = 2000;
-agentSpeed = 3;
+tmax = 3000;
+agentSpeed = 5;
 
 showeredData = zeros(tmax,1);
 wateredData = zeros(tmax,1);
@@ -50,8 +50,8 @@ for t = 1 : tmax
     % Cycle through the agents
     for a = 1 : numAgents
         % brownian motion
-        agents(a,1) = limitRange(agents(a,1) + (agentSpeed*(randi(3) - 2)),  1,  xmax);
-        agents(a,2) = limitRange(agents(a,2) + (agentSpeed*(randi(3) - 2)),  1,  ymax);
+        agents(a,1) = limitRange(agents(a,1) + (randi(agentSpeed)*(randi(3) - 2)),  1,  xmax);
+        agents(a,2) = limitRange(agents(a,2) + (randi(agentSpeed)*(randi(3) - 2)),  1,  ymax);
         
         % now check for people in the surrounding area
         fiftyPop = countPop(currentMap, agents(a,1), agents(a,2), round(50*ScaleConstant));
@@ -127,35 +127,46 @@ for w = 1 : size(waterSources,1)
 end
 
 
-% pp(1) = subplot(2,2,1);
 figure();
 imagesc(currentMap);
+colormap parula;
 axis equal tight;
-% pp(2) = subplot(2,2,2);
+title('Population map');
 figure();
-imagesc(square);
+image(square*14);
+colormap jet;
 axis equal tight;
-% linkaxes(pp);
+title('Facility map after simulation');
 
 figure();
 plot(numStructuresData);
-title('Number of structures over time');
+title('Number of structures (water sources, bathing, and latrines) over time');
+xlabel('Time steps, t');
+ylabel('Number of structures');
 
 figure();
 plot(showeredData);
-title('Probability of access to shower over time');
+title('Approximate probability of access to bathing facilities over time');
+xlabel('Time steps, t');
+ylabel('Probability');
 
 figure();
 plot(wateredData);
-title('Probability of access to water over time');
+title('Approximate probability of access to water over time');
+xlabel('Time steps, t');
+ylabel('Probability');
 
 figure();
 plot(latrinedData);
-title('Probability of access to latrine over time');
+title('Approximate probability of access to latrine over time');
+xlabel('Time steps, t');
+ylabel('Probability');
 
 figure();
 plot(fullySatisfiedData);
-title('Probability of full access to facilities over time');
+title('Approximate probability of full access to facilities over time');
+xlabel('Time steps, t');
+ylabel('Probability');
 
 
     
